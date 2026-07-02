@@ -5,8 +5,8 @@ Ek simple aur mobile-friendly web app jo pool race games ke scores track karne k
 ## ✨ Features
 
 - ➕ Player add/remove karein
-- 🔢 Scores adjust karein: **+2, +3, +4, +5, +6, +7, +10** aur **-2 se -10** tak
-- 🔻 **Negative scores** allowed hain
+- 🔢 Scores adjust karein: **+2, +3, +4, +5, +6, +7, aur **-2 se -7 tak
+- 🔻 **Negative scores** allowed nahi hain
 - 🏆 Live standings aur stats (leader, total points, highest score)
 - 💾 Data **IndexedDB** mein locally save hota hai (browser cache clear na karein toh data rahega)
 
