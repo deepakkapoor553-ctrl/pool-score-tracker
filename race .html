@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🎱 8-Ball Pool Race – Score Tracker</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f1217;
+            color: #e8edf2;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1f26;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e7d5e;
+            border-radius: 4px;
+        }
+        .app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: linear-gradient(145deg, #1a212a, #11161e);
+            border-radius: 18px;
+            border: 1px solid #2a3340;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .header-left .logo {
+            font-size: 2.2rem;
+            line-height: 1;
+        }
+        .header-left h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #6fcf97, #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-left .sub {
+            font-size: 0.85rem;
+            color: #8896a8;
+            margin-left: 4px;
+            -webkit-text-fill-color: #8896a8;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .btn-reset {
+            background: #2a1f2a;
+            border: 1px solid #4a2f3a;
+            color: #d4a0b0;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-reset:hover {
+            background: #3d2835;
+            border-color: #b05a7a;
+            color: #f0c8d8;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: #161e27;
+            border: 1px solid #25303e;
+            border-radius: 14px;
+            padding: 14px 20px;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .stat-card:hover {
+            border-color: #2e7d5e;
+        }
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6fcf97;
+        }
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: #8896a8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #161e27;
+            border: 1px solid #25303e;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d8e2ee;
+        }
+        .card-header h2 i {
+            color: #2e7d5e;
+            font-size: 1.2rem;
+        }
+        .card-header .badge {
+            background: #1e2a36;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #b0c0d0;
+            border: 1px solid #2e3a48;
+        }
+        /* Player list */
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .player-item {
+            display: flex;
+            flex-direction: column;
+            background: #10171f;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #1f2a36;
+            transition: 0.2s;
+            gap: 8px;
+        }
+        .player-item:hover {
+            border-color: #2e7d5e;
+        }
+        .player-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .player-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        .player-name .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1e2a36;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #6fcf97;
+        }
+        .player-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1c40f;
+            min-width: 50px;
+            text-align: center;
+        }
+        .player-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .player-actions .btn-group {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .player-actions button {
+            background: #1a212a;
+            border: 1px solid #2a3340;
+            color: #c8d0d8;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            min-width: 34px;
+        }
+        .player-actions button:hover {
+            background: #2a3340;
+            border-color: #3e5a6e;
+        }
+        .player-actions .inc {
+            color: #6fcf97;
+        }
+        .player-actions .inc:hover {
+            background: #1a2e24;
+            border-color: #2e7d5e;
+        }
+        .player-actions .dec {
+            color: #e67e7e;
+        }
+        .player-actions .dec:hover {
+            background: #2e1a1a;
+            border-color: #b05a5a;
+        }
+        .player-actions .delete-btn {
+            color: #4a5a6a;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        .player-actions .delete-btn:hover {
+            color: #e74c3c;
+            background: #2a1820;
+        }
+        .add-player-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .add-player-form input {
+            flex: 1;
+            min-width: 140px;
+            background: #0f141c;
+            border: 1px solid #25303e;
+            border-radius: 40px;
+            padding: 10px 18px;
+            color: #e8edf2;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .add-player-form input:focus {
+            border-color: #2e7d5e;
+        }
+        .add-player-form input::placeholder {
+            color: #4a5a6a;
+        }
+        .btn-primary {
+            background: #1e7a5a;
+            border: none;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        .btn-primary:hover {
+            background: #269f76;
+            transform: scale(1.02);
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        /* Standings table */
+        .standings-wrap {
+            overflow-x: auto;
+        }
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .standings-table th {
+            text-align: left;
+            padding: 10px 12px;
+            color: #8896a8;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #1f2a36;
+        }
+        .standings-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1a212a;
+        }
+        .standings-table tr:hover td {
+            background: #10171f;
+        }
+        .standings-table .rank {
+            font-weight: 700;
+            color: #6fcf97;
+            width: 36px;
+        }
+        .standings-table .player-name {
+            font-weight: 500;
+        }
+        .standings-table .score {
+            font-weight: 700;
+            color: #f1c40f;
+        }
+        .no-data {
+            text-align: center;
+            color: #4a5a6a;
+            padding: 30px 0;
+            font-style: italic;
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
+        .toast {
+            background: #1e2732;
+            border: 1px solid #2e3a48;
+            border-left: 4px solid #2e7d5e;
+            padding: 14px 22px;
+            border-radius: 12px;
+            color: #e8edf2;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            animation: slideIn 0.3s ease;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toast.error {
+            border-left-color: #e74c3c;
+        }
+        .toast.success {
+            border-left-color: #2e7d5e;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                padding: 16px 18px;
+            }
+            .header-left h1 {
+                font-size: 1.3rem;
+            }
+            .card {
+                padding: 16px;
+            }
+            .player-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .player-actions {
+                justify-content: center;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .standings-table {
+                font-size: 0.75rem;
+            }
+            .standings-table th,
+            .standings-table td {
+                padding: 6px 8px;
+            }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px 10px;
+            color: #4a5a6a;
+        }
+        .empty-state i {
+            font-size: 2.4rem;
+            color: #1f2a36;
+            margin-bottom: 10px;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+        .btn-secondary {
+            background: #1e2a36;
+            border: 1px solid #2e3a48;
+            color: #d0dce8;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+        .btn-secondary:hover {
+            background: #2a3a4a;
+            border-color: #3e5a6e;
+        }
+        .btn-secondary.danger {
+            border-color: #4a2a2a;
+            color: #e67e7e;
+        }
+        .btn-secondary.danger:hover {
+            background: #2a1a1a;
+            border-color: #b05a5a;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <span class="logo">🎱</span>
+                <h1>Pool Race <span class="sub">• Score Tracker</span></h1>
+            </div>
+            <div class="header-right">
+                <button class="btn-reset" id="resetBtn">
+                    <i class="fas fa-rotate-left"></i> Reset All
+                </button>
+            </div>
+        </header>
+
+        <!-- STATS -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-number" id="statPlayers">0</div>
+                <div class="stat-label">Players</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statTotalPoints">0</div>
+                <div class="stat-label">Total Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statLeader">—</div>
+                <div class="stat-label">Leader</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statHighestScore">0</div>
+                <div class="stat-label">Highest Score</div>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="main-grid">
+            <!-- LEFT: Players -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-users"></i> Players</h2>
+                    <span class="badge" id="playerCountBadge">0</span>
+                </div>
+
+                <div class="player-list" id="playerList">
+                    <div class="empty-state">
+                        <i class="fas fa-user-plus"></i>
+                        <p>No players yet. Add one below!</p>
+                    </div>
+                </div>
+
+                <div class="add-player-form">
+                    <input type="text" id="playerNameInput" placeholder="Player name..." maxlength="30" />
+                    <button class="btn-primary" id="addPlayerBtn">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT: Standings -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-trophy"></i> Standings</h2>
+                    <span class="badge" id="standingsBadge">Rank by points</span>
+                </div>
+                <div class="standings-wrap">
+                    <table class="standings-table" id="standingsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Player</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standingsBody">
+                            <tr><td colspan="3" class="no-data">No players yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DATABASE LAYER (IndexedDB)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const DB_NAME = 'PoolRaceDB';
+        const DB_VERSION = 2; // bumped version to add 'score' field
+
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains('players')) {
+                        const store = d.createObjectStore('players', { keyPath: 'id', autoIncrement: true });
+                        // add score field later
+                    } else {
+                        // For existing DB, we might need to add score field, but we handle it in code.
+                    }
+                    // Remove matches store if exists (we don't need it)
+                    if (d.objectStoreNames.contains('matches')) {
+                        d.deleteObjectStore('matches');
+                    }
+                    if (!d.objectStoreNames.contains('settings')) {
+                        d.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        function dbAdd(storeName, data) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.add(data);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        function dbPut(storeName, data) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.put(data);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        function dbGetAll(storeName) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        function dbDelete(storeName, id) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const req = store.delete(id);
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        function dbGet(storeName, id) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const req = store.get(id);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  APP STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        let players = [];
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DOM REFS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        const playerListEl = $('#playerList');
+        const playerNameInput = $('#playerNameInput');
+        const addPlayerBtn = $('#addPlayerBtn');
+        const standingsBody = $('#standingsBody');
+        const resetBtn = $('#resetBtn');
+
+        const statPlayers = $('#statPlayers');
+        const statTotalPoints = $('#statTotalPoints');
+        const statLeader = $('#statLeader');
+        const statHighestScore = $('#statHighestScore');
+        const playerCountBadge = $('#playerCountBadge');
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  TOAST
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function showToast(message, type = 'success') {
+            const container = $('#toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(40px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  RENDER FUNCTIONS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function renderPlayers() {
+            if (players.length === 0) {
+                playerListEl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-plus"></i>
+                        <p>No players yet. Add one below!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            players.forEach((p) => {
+                const initial = p.name.charAt(0).toUpperCase() || '?';
+                const score = p.score || 0;
+                // Build adjustment buttons: +2..+7 and -2..-7
+                let incBtns = '';
+                let decBtns = '';
+                for (let i = 2; i <= 7; i++) {
+                    incBtns += `<button class="inc" data-id="${p.id}" data-delta="${i}">+${i}</button>`;
+                    decBtns += `<button class="dec" data-id="${p.id}" data-delta="-${i}">-${i}</button>`;
+                }
+                html += `
+                    <div class="player-item" data-id="${p.id}">
+                        <div class="player-row">
+                            <span class="player-name">
+                                <span class="avatar">${initial}</span>
+                                ${escapeHtml(p.name)}
+                            </span>
+                            <span class="player-score">${score}</span>
+                            <div class="player-actions">
+                                <div class="btn-group">${incBtns}</div>
+                                <div class="btn-group">${decBtns}</div>
+                                <button class="delete-btn" data-id="${p.id}" title="Remove player">
+                                    <i class="fas fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            playerListEl.innerHTML = html;
+            playerCountBadge.textContent = players.length;
+
+            // Event listeners for adjustment buttons
+            playerListEl.querySelectorAll('.inc, .dec').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const id = Number(btn.dataset.id);
+                    const delta = Number(btn.dataset.delta);
+                    adjustScore(id, delta);
+                });
+            });
+
+            // Delete handlers
+            playerListEl.querySelectorAll('.delete-btn').forEach((btn) => {
+                btn.addEventListener('click', () => deletePlayer(Number(btn.dataset.id)));
+            });
+        }
+
+        function renderStandings() {
+            if (players.length === 0) {
+                standingsBody.innerHTML = `<tr><td colspan="3" class="no-data">No players yet.</td></tr>`;
+                return;
+            }
+
+            const sorted = [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
+            let html = '';
+            sorted.forEach((p, i) => {
+                html += `
+                    <tr>
+                        <td class="rank">${i + 1}</td>
+                        <td class="player-name">${escapeHtml(p.name)}</td>
+                        <td class="score">${p.score || 0}</td>
+                    </tr>
+                `;
+            });
+            standingsBody.innerHTML = html;
+        }
+
+        function renderStats() {
+            const total = players.length;
+            statPlayers.textContent = total;
+            let totalPoints = 0;
+            let highest = 0;
+            let leader = '—';
+            players.forEach(p => {
+                const s = p.score || 0;
+                totalPoints += s;
+                if (s > highest) {
+                    highest = s;
+                    leader = p.name;
+                }
+            });
+            statTotalPoints.textContent = totalPoints;
+            statHighestScore.textContent = highest;
+            statLeader.textContent = leader;
+        }
+
+        function renderAll() {
+            renderPlayers();
+            renderStandings();
+            renderStats();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  HELPERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  CRUD: PLAYERS & SCORES
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        async function addPlayer(name) {
+            name = name.trim();
+            if (!name) { showToast('Please enter a name.', 'error'); return; }
+            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showToast('Player already exists.', 'error');
+                return;
+            }
+            try {
+                const newPlayer = { name, score: 0 };
+                const id = await dbAdd('players', newPlayer);
+                newPlayer.id = id;
+                players.push(newPlayer);
+                renderAll();
+                showToast(`Added "${name}"`);
+            } catch (err) {
+                showToast('Error adding player.', 'error');
+                console.error(err);
+            }
+        }
+
+        async function deletePlayer(id) {
+            const p = players.find(p => p.id === id);
+            if (!p) return;
+            if (!confirm(`Remove "${p.name}"?`)) return;
+            try {
+                await dbDelete('players', id);
+                players = players.filter(p => p.id !== id);
+                renderAll();
+                showToast(`Removed "${p.name}"`);
+            } catch (err) {
+                showToast('Error removing player.', 'error');
+                console.error(err);
+            }
+        }
+
+        async function adjustScore(id, delta) {
+            const p = players.find(p => p.id === id);
+            if (!p) return;
+            const newScore = (p.score || 0) + delta;
+            if (newScore < 0) {
+                showToast('Score cannot go below 0.', 'error');
+                return;
+            }
+            try {
+                p.score = newScore;
+                await dbPut('players', p);
+                renderAll();
+                // show toast only for significant changes? We'll keep quiet to avoid spam.
+                // Optionally show toast: showToast(`${p.name}: ${delta > 0 ? '+' : ''}${delta} → ${newScore}`);
+            } catch (err) {
+                showToast('Error updating score.', 'error');
+                console.error(err);
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  RESET
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        async function resetAll() {
+            if (!confirm('⚠️ This will delete ALL players and their scores. Are you sure?')) return;
+            try {
+                for (const p of players) {
+                    await dbDelete('players', p.id);
+                }
+                players = [];
+                renderAll();
+                showToast('All data cleared.');
+            } catch (err) {
+                showToast('Error resetting data.', 'error');
+                console.error(err);
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  LOAD DATA
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        async function loadData() {
+            try {
+                players = await dbGetAll('players');
+                // Ensure each player has a score field
+                players.forEach(p => {
+                    if (p.score === undefined) p.score = 0;
+                });
+                renderAll();
+            } catch (err) {
+                console.error('Error loading data:', err);
+                showToast('Error loading data.', 'error');
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  EVENT BINDING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function init() {
+            // Add player
+            addPlayerBtn.addEventListener('click', () => {
+                addPlayer(playerNameInput.value);
+                playerNameInput.value = '';
+                playerNameInput.focus();
+            });
+            playerNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    addPlayer(playerNameInput.value);
+                    playerNameInput.value = '';
+                }
+            });
+
+            // Reset
+            resetBtn.addEventListener('click', resetAll);
+
+            // Load data
+            loadData();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  BOOT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        openDB().then(() => {
+            init();
+        }).catch((err) => {
+            console.error('IndexedDB error:', err);
+            alert('⚠️ Could not open database. Please ensure your browser supports IndexedDB and try again.');
+        });
+    </script>
+</body>
+</html>
