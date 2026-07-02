@@ -18,7 +18,7 @@ Ek simple aur mobile-friendly web app jo pool race games ke scores track karne k
 
 ## 🚀 Live Demo
 
-[Yahan click karein app use karne ke liye](https://aapka-username.github.io/repo-name/)
+[Yahan click karein app use karne ke liye](https://deepakapoor553-ctrl.github.io/pool-score-tracker/)
 
 ## ⚠️ Note
 
